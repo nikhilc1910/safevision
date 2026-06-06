@@ -26,8 +26,8 @@ from inference.pipeline import Pipeline
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 
-_ROOT         = Path(__file__).resolve().parent.parent  # dashboard/app.py → dashboard/ → safevision/
-MODEL_PATH    = Path(os.getenv("MODEL_PATH", str(_ROOT / "runs" / "aug-freeze_final.pt")))
+_ROOT      = Path(__file__).resolve().parent.parent  # dashboard/app.py → dashboard/ → safevision/
+MODEL_PATH = Path(os.getenv("MODEL_PATH", str(_ROOT / "runs" / "aug-freeze_final.pt")))
 DB_PATH       = _ROOT / "safevision.db"
 TRAINING_META = _ROOT / "runs" / "training_results.json"
 WANDB_CURVES  = _ROOT.parent / "docs" / "wandb_results.png"
@@ -251,10 +251,11 @@ hr { border-color: #1f1f1f !important; margin: 20px 0 !important; }
 # ── shared resources ───────────────────────────────────────────────────────────
 
 @st.cache_resource
-def load_pipeline():
-    if not MODEL_PATH.exists():
+def load_pipeline(weights_override: str | None = None):
+    path = Path(weights_override) if weights_override else MODEL_PATH
+    if not path.exists():
         return None
-    return Pipeline(MODEL_PATH, zone_config=[], camera_id="demo")
+    return Pipeline(path, zone_config=[], camera_id="demo")
 
 
 @st.cache_resource
@@ -262,7 +263,7 @@ def load_store():
     return ViolationStore(DB_PATH)
 
 
-pipe  = load_pipeline()
+pipe  = load_pipeline(st.session_state.get("uploaded_weights_path"))
 store = load_store()
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -643,6 +644,27 @@ elif page == "📊 Training Results":
 elif page == "⚙ Settings":
     st.subheader("Settings")
     st.caption("Changes apply to the current session only -- not persisted to .env.")
+
+    st.markdown("---")
+
+    # model weights upload
+    st.markdown("**Model weights**")
+    if MODEL_PATH.exists():
+        st.success(f"Weights loaded: `{MODEL_PATH.name}`")
+    else:
+        st.warning("No weights found. Upload your `.pt` file to enable Live Monitor.")
+        weights_file = st.file_uploader("Upload model weights (.pt)", type=["pt"])
+        if weights_file is not None:
+            upload_dest = Path(tempfile.gettempdir()) / weights_file.name
+            upload_dest.write_bytes(weights_file.read())
+            st.session_state["uploaded_weights_path"] = str(upload_dest)
+            st.success(f"Weights loaded for this session: `{weights_file.name}`")
+            st.caption("Refresh Live Monitor — it will use these weights until the session ends.")
+
+    # use uploaded weights path if set
+    if "uploaded_weights_path" in st.session_state:
+        import builtins
+        builtins.__dict__["_OVERRIDE_MODEL_PATH"] = st.session_state["uploaded_weights_path"]
 
     st.markdown("---")
 
