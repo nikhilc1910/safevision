@@ -2,6 +2,8 @@
 
 ![SafeVision demo — PPE detection and zone violation](safevision/docs/gif.png)
 
+![SafeVision dashboard — Live Monitor, Violation Log, Training Results](safevision/docs/dashboard.png)
+
 The core problem: a worker without a hard hat entering a forklift operating zone is a collision with a safety failure — the missing PPE and the zone breach are separate events that need to be detected and correlated in real time. SafeVision does both. It detects PPE violations (missing helmets, vests, gloves, boots, goggles), tracks workers against configurable polygon zones with a dwell threshold to cut noise, and logs every correlated event with confidence score and frame thumbnail.
 
 I fine-tuned YOLOv8n on the Ultralytics Construction-PPE dataset using a frozen-backbone warm-up strategy. The two engineering decisions worth explaining: expanded-IoU PPE-to-person association (centroid distance breaks down in crowded scenes) and 3-frame dwell threshold for zone intrusion (per-frame events cause alert fatigue, which is a documented safety failure mode).
