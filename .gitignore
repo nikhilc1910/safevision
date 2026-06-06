@@ -12,11 +12,12 @@ build/
 .env
 *.env
 
-# Model weights — too large for git, download from WandB artifact
-*.pt
+# Model weights
 *.pth
 *.onnx
-runs/
+# YOLOv8n fine-tuned weights are ~6MB — small enough to commit
+# runs/ folder committed so Streamlit Cloud can find the checkpoint
+
 
 # Dataset — auto-downloads via ultralytics, don't commit thousands of label files
 datasets/
