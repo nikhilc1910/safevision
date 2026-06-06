@@ -76,14 +76,14 @@ Training runs on Kaggle (T4 ×2, DDP via `device='0,1'`). Session checkpoints ev
 
 Four runs: baseline (no aug, no freeze), aug-only, freeze-only, aug+freeze.
 
-| Run              | mAP@50    | mAP@50-95 | Recall (no-helmet) |
-| ---------------- | --------- | --------- | ------------------ |
-| Baseline         | 0.533     | —         | 0.200              |
-| Aug only         | 0.514     | —         | 0.072              |
-| Freeze only      | 0.576     | 0.277     | 0.796              |
-| **Aug + Freeze** | **0.576** | **0.279** | **0.816**          |
+| Run              | mAP@50    | mAP@50-95 | no_helmet recall | no_gloves recall |
+| ---------------- | --------- | --------- | ---------------- | ---------------- |
+| Baseline         | 0.533     | 0.255     | 0.200            | 0.086            |
+| Aug only         | 0.514     | 0.249     | 0.074            | 0.052            |
+| Freeze only      | 0.516     | 0.253     | 0.196            | 0.155            |
+| **Aug + Freeze** | **0.532** | **0.270** | 0.150            | **0.138**        |
 
-The headline number is no-helmet recall: 0.20 (baseline) → 0.80 (freeze-only). The freeze warm-up is doing almost all of the work. Aug-only actually hurts both metrics slightly — without a frozen backbone anchoring the low-level COCO features, harder augmented samples destabilize fine-tuning on a ~3k-image dataset. Aug+freeze recovers that and adds a small margin, suggesting the two strategies interact rather than stack additively.
+aug-freeze wins on mAP50-95 (0.270 vs 0.255 baseline) and on no_gloves recall. The no_helmet story is more nuanced than I expected: aug-only destroys it (0.074 — augmentation without a frozen backbone destabilizes detection of the hardest violation class), freeze-only recovers close to baseline (0.196), but aug+freeze lands at 0.150 — augmentation hurts no_helmet even with freezing. My read is that no_helmet has very few test instances so the numbers are noisy, but it's a real finding: the two strategies don't stack cleanly on low-frequency violation classes. For the PPE-present classes (helmet: 0.906, vest: 0.876, goggles: 0.808), aug+freeze is clearly best.
 
 ---
 
