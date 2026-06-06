@@ -12,7 +12,7 @@ I fine-tuned YOLOv8n on the Ultralytics Construction-PPE dataset using a frozen-
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -44,7 +44,7 @@ flowchart LR
 
 ---
 
-## PPE-to-person association
+## 🦺 PPE-to-Person Association
 
 I tried centroid-distance first. It breaks when two workers stand close together — a helmet detect midway between them gets assigned to the wrong person. Switched to expanded IoU: inflate each person's bounding box 30% vertically before computing overlap. This handles hard hats that sit above the shoulder line without touching the person bbox.
 
@@ -56,7 +56,7 @@ The expansion is vertical and upward only — horizontal expansion picks up adja
 
 ---
 
-## Zone intrusion
+## 🚨 Zone Intrusion
 
 The relevant scenario here is vehicle operating zones — AGV lanes, forklift paths, loading bays. A worker entering one of these without PPE is the highest-risk event the system needs to catch.
 
@@ -66,7 +66,7 @@ I use a 3-consecutive-frame dwell threshold: the counter increments when the cen
 
 ---
 
-## Training — frozen backbone warm-up
+## ⚙️ Training — Frozen Backbone Warm-Up
 
 YOLOv8n pretrained on COCO gives you useful low-level features (edges, textures) that catastrophic forgetting can destroy if you fine-tune end-to-end from epoch 1 on a small PPE dataset. I freeze layers 0–9 for the first 10 epochs, then unfreeze and train the full network for the remaining 90. The mAP difference between "no freeze" and "freeze warm-up" in my ablation is the main argument for doing this on a ~3k-image dataset.
 
@@ -74,7 +74,7 @@ Training runs on Kaggle (T4 ×2, DDP via `device='0,1'`). Session checkpoints ev
 
 ---
 
-## Ablation results
+## 📊 Ablation Results
 
 Four runs: baseline (no aug, no freeze), aug-only, freeze-only, aug+freeze.
 
@@ -89,7 +89,7 @@ aug-freeze wins on mAP50-95 (0.270 vs 0.255 baseline) and on no_gloves recall. T
 
 ---
 
-## WandB — no-helmet detection metrics
+## 📈 WandB — No-Helmet Detection Metrics
 
 ![WandB test metrics — all 4 ablation runs](safevision/docs/wandb_results.png)
 
@@ -97,7 +97,7 @@ All 4 runs logged at [wandb.ai/nikhil19102004-manipal/safevision-ppe](https://wa
 
 ---
 
-## Quickstart
+## 🚀 Quickstart
 
 ```bash
 git clone https://github.com/nikhilc1910/safevision.git
@@ -118,7 +118,7 @@ The model weights are not in the repo (too large for git). Download them from th
 
 ---
 
-## Reproducing training on Kaggle
+## ☁️ Reproducing Training on Kaggle
 
 1. Go to [kaggle.com/code](https://kaggle.com/code), create a new notebook, **File → Import Notebook**, upload `safevision/training/safevision_kaggle.ipynb`
 2. Accelerator → GPU T4 ×2
@@ -129,7 +129,7 @@ The model weights are not in the repo (too large for git). Download them from th
 
 ---
 
-## Known limitations
+## ⚠️ Known Limitations
 
 - **Zone polygons are pixel-space**: drawn against a fixed resolution. If you resize the video feed, re-draw them. Not hard to fix, just not done yet.
 - **Single camera only**: the pipeline processes one video at a time. Multi-feed would need a process-per-camera wrapper or async I/O — straightforward to add but not built yet.
@@ -139,7 +139,7 @@ The model weights are not in the repo (too large for git). Download them from th
 
 ---
 
-## Project structure
+## 📁 Project Structure
 
 ```text
 safevision/
@@ -167,7 +167,7 @@ safevision/
 
 ---
 
-## Environment variables
+## 🔧 Environment Variables
 
 | Variable         | Default                   | Notes                                                                     |
 | ---------------- | ------------------------- | ------------------------------------------------------------------------- |
@@ -178,7 +178,7 @@ safevision/
 
 ---
 
-## Running tests
+## 🧪 Running Tests
 
 ```bash
 cd safevision
@@ -189,7 +189,7 @@ Tests cover zone polygon logic and PPE association edge cases. No mocks — test
 
 ---
 
-## Papers I read building this
+## 📚 Papers I Read Building This
 
 Not a full literature review — these are the things I actually read and pulled something specific from.
 
@@ -207,7 +207,7 @@ The theoretical grounding for the frozen backbone warm-up strategy. Early layers
 
 ---
 
-## Problems I ran into
+## 🧠 Problems I Ran Into
 
 These are the things that actually slowed me down, not the ones that sound impressive to mention.
 
