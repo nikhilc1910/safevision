@@ -1,0 +1,12 @@
+[
+  {
+    "zone_id": "zone_A",
+    "label": "Restricted area — hard hat required",
+    "points": [[120, 80], [520, 80], [520, 420], [120, 420]]
+  },
+  {
+    "zone_id": "zone_B",
+    "label": "Entry corridor",
+    "points": [[0, 300], [200, 300], [200, 480], [0, 480]]
+  }
+]

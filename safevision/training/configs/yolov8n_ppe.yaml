@@ -1,0 +1,54 @@
+# YOLOv8n fine-tuning hyperparameters — SafeVision PPE
+#
+# Most defaults from Ultralytics are sensible. The ones I changed are here
+# with a one-line reason. Anything not listed uses the library default.
+
+# ── training ──────────────────────────────────────────────────────────────────
+epochs: 100
+batch: 16          # safe for P100 16GB VRAM
+imgsz: 640         # 640 vs 416 is an ablation target — see ablation run "size-640"
+lr0: 0.01          # cosine schedule: starts here, ends at lr0 * lrf
+lrf: 0.01          # final LR = 0.0001 — low enough that late epochs don't thrash
+momentum: 0.937
+weight_decay: 0.0005
+warmup_epochs: 3   # Ultralytics internal warmup (separate from my backbone freeze)
+
+# ── augmentation ──────────────────────────────────────────────────────────────
+# These are the ones that actually move the needle for PPE on factory floor footage.
+
+mosaic: 1.0
+# ^ highest-impact single setting for small PPE items — forces multi-scale
+# detection by compositing 4 images. Turned off in "baseline" ablation run.
+
+hsv_s: 0.7
+# ^ factory lighting varies a lot: fluorescent, sodium vapor, natural light
+# through windows. Wide saturation range reduces lighting-condition overfitting.
+
+hsv_v: 0.4        # brightness variation for same reason as saturation
+
+degrees: 0.0
+# ^ no rotation — hard hats and vests don't appear upside down on a factory floor.
+# Rotation augmentation would waste capacity on impossible poses.
+
+copy_paste: 0.0
+# ^ disabled — copy-paste creates contextually wrong scenes (helmet floating
+# mid-air, glove on the ceiling). Hurts more than it helps on this dataset.
+
+mixup: 0.1
+# ^ low but non-zero. Aggressive mixup (>0.3) blends safety gear into backgrounds
+# in ways that don't reflect real scenes. 0.1 gives slight regularization benefit.
+
+flipud: 0.0        # same reasoning as degrees — workers don't hang upside down
+fliplr: 0.5        # horizontal flip is fine and realistic
+
+# ── loss weights ──────────────────────────────────────────────────────────────
+box: 7.5           # Ultralytics default — leaving it; box regression is well-tuned
+cls: 0.5           # default
+dfl: 1.5           # default — DFL loss controls boundary prediction sharpness
+
+# ── inference ─────────────────────────────────────────────────────────────────
+conf: 0.4          # overridden at runtime by CONF_THRESHOLD env var; this is the
+                   # training-time NMS threshold. 0.4 is a product decision —
+                   # in a safety context, false positives are annoying but a
+                   # missed no-helmet is a liability.
+iou: 0.7           # NMS IoU — default; crowded scenes might need 0.65 but not tested yet
