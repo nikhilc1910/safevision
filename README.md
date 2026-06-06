@@ -1,5 +1,7 @@
 # SafeVision — PPE & Zone Safety Monitor
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://safevision-dhz8bputvhutwpmkzsdwuz.streamlit.app/)
+
 ![SafeVision demo — PPE detection and zone violation](safevision/docs/gif.png)
 
 ![SafeVision dashboard — Live Monitor, Violation Log, Training Results](safevision/docs/dashboard.png)
