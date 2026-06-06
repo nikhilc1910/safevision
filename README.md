@@ -44,7 +44,7 @@ flowchart LR
 
 I tried centroid-distance first. It breaks when two workers stand close together — a helmet detect midway between them gets assigned to the wrong person. Switched to expanded IoU: inflate each person's bounding box 30% vertically before computing overlap. This handles hard hats that sit above the shoulder line without touching the person bbox.
 
-```
+```python
 expanded_bbox = (x1, y1 - 0.30·h, x2, y2)   # upward only
 ```
 
@@ -74,12 +74,12 @@ Training runs on Kaggle (T4 ×2, DDP via `device='0,1'`). Session checkpoints ev
 
 Four runs: baseline (no aug, no freeze), aug-only, freeze-only, aug+freeze.
 
-| Run | mAP@50 | mAP@50-95 | Recall (no-helmet) |
-|---|---|---|---|
-| Baseline | 0.533 | — | 0.200 |
-| Aug only | 0.514 | — | 0.072 |
-| Freeze only | 0.576 | 0.277 | 0.796 |
-| **Aug + Freeze** | **0.576** | **0.279** | **0.816** |
+| Run              | mAP@50    | mAP@50-95 | Recall (no-helmet) |
+| ---------------- | --------- | --------- | ------------------ |
+| Baseline         | 0.533     | —         | 0.200              |
+| Aug only         | 0.514     | —         | 0.072              |
+| Freeze only      | 0.576     | 0.277     | 0.796              |
+| **Aug + Freeze** | **0.576** | **0.279** | **0.816**          |
 
 The headline number is no-helmet recall: 0.20 (baseline) → 0.80 (freeze-only). The freeze warm-up is doing almost all of the work. Aug-only actually hurts both metrics slightly — without a frozen backbone anchoring the low-level COCO features, harder augmented samples destabilize fine-tuning on a ~3k-image dataset. Aug+freeze recovers that and adds a small margin, suggesting the two strategies interact rather than stack additively.
 
@@ -137,7 +137,7 @@ The model weights are not in the repo (too large for git). Download them from th
 
 ## Project structure
 
-```
+```text
 safevision/
 ├── training/
 │   ├── train.py              # training loop with WandB callbacks
@@ -165,12 +165,12 @@ safevision/
 
 ## Environment variables
 
-| Variable | Default | Notes |
-|---|---|---|
-| `CONF_THRESHOLD` | `0.4` | Detection confidence cutoff. Lower → more alerts, more noise. |
-| `STORE_SNAPS` | `true` | Save annotated frame thumbnail per violation. Disable on low-disk machines. |
-| `WANDB_API_KEY` | — | Required for training. Not needed for inference/dashboard. |
-| `MODEL_PATH` | `runs/aug_freeze_best.pt` | Path to fine-tuned weights. |
+| Variable         | Default                   | Notes                                                                     |
+| ---------------- | ------------------------- | ------------------------------------------------------------------------- |
+| `CONF_THRESHOLD` | `0.4`                     | Detection confidence cutoff. Lower → more alerts, more noise.              |
+| `STORE_SNAPS`    | `true`                    | Save annotated frame thumbnail per violation. Disable on low-disk machines. |
+| `WANDB_API_KEY`  | —                         | Required for training. Not needed for inference/dashboard.                |
+| `MODEL_PATH`     | `runs/aug_freeze_best.pt` | Path to fine-tuned weights.                                               |
 
 ---
 
