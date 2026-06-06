@@ -89,9 +89,9 @@ The headline number is no-helmet recall: 0.20 (baseline) → 0.80 (freeze-only).
 
 ## WandB — no-helmet detection metrics
 
-![WandB test metrics: no-helmet recall, precision, AP50 — baseline vs aug-only](docs/wandb_results.png)
+![WandB test metrics — all 4 ablation runs](safevision/docs/wandb_results.png)
 
-Baseline (blue) vs aug-only (red) on the no-helmet violation class. Augmentation without frozen backbone actually hurts recall (0.20 → 0.07) — the freeze-only and aug+freeze runs (which weren't run through evaluate.py on Kaggle) are in the ablation table above with the full numbers. All runs logged at [wandb.ai/nikhil19102004-manipal/safevision-ppe](https://wandb.ai/nikhil19102004-manipal/safevision-ppe).
+All 4 runs logged at [wandb.ai/nikhil19102004-manipal/safevision-ppe](https://wandb.ai/nikhil19102004-manipal/safevision-ppe). aug-freeze (pink) leads on most PPE classes. The no-helmet recall story is the clearest signal: augmentation alone hurts it, freeze alone recovers it, aug+freeze pushes it further.
 
 ---
 
